@@ -16,6 +16,10 @@ export const loadFromFile = async () => {
   return data;
 };
 
+export const transformMarkdownToText = (markdown: string) => {
+  return markdown.replace(/[#*`]/g, "");
+};
+
 export async function readFile(file: FileHandle) {
   let buffer = new Uint8Array(1024); // Start with an initial size
   let totalBytesRead = 0;

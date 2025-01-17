@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NavBar from "./Components/navbar";
@@ -15,7 +15,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -26,12 +25,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white h-screen`}
       >
-        <MarkdownProvider>
-          <TextProvider>
+        <TextProvider>
+          <MarkdownProvider>
             <NavBar />
             {children}
-          </TextProvider>
-        </MarkdownProvider>
+          </MarkdownProvider>
+        </TextProvider>
       </body>
     </html>
   );
