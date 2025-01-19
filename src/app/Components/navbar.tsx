@@ -7,9 +7,13 @@ import Link from "next/link";
 import { useMarkdown } from "../hooks/use-markdown";
 import { useFileLoaded } from "../hooks/use-file-loaded";
 import { useEffect } from "react";
+import { saveFileAs } from "../lib/utils";
 const NavBar = () => {
-  const { loadMarkdown } = useMarkdown();
+  const { loadMarkdown, markdown } = useMarkdown();
   const { fileName, setFileName } = useFileLoaded();
+  const handleSaveAs = () => {
+    saveFileAs(markdown);
+  };
   const handleLoad = () => {
     loadMarkdown().then((res) => {
       if (!res) {
@@ -38,10 +42,12 @@ const NavBar = () => {
           <Button onClick={handleLoad}>Load From File</Button>
         </li>
         <li>
-          <Button>Save As</Button>
+          <Button onClick={handleSaveAs} disabled={!markdown || markdown == ""}>
+            Save As
+          </Button>
         </li>
         <li>
-          <Button>Save</Button>
+          <Button disabled={fileName === "Untitled"}>Save</Button>
         </li>
       </ul>
     </nav>

@@ -1,7 +1,8 @@
 import React, { createContext, useState, ReactNode, useEffect } from "react";
-import { loadFromFile, transformMarkdownToText } from "../lib/utils";
+import { loadFromFile } from "../lib/utils";
 import { useText } from "../hooks/use-text";
 import { useFileLoaded } from "../hooks/use-file-loaded";
+import { transformMarkdownToText } from "../lib/markdown-processing";
 
 interface MarkdownContextProps {
   markdown: string;
