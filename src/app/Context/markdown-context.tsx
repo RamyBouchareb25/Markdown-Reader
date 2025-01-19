@@ -1,6 +1,7 @@
 import React, { createContext, useState, ReactNode, useEffect } from "react";
 import { loadFromFile, transformMarkdownToText } from "../lib/utils";
 import { useText } from "../hooks/use-text";
+import { useFileLoaded } from "../hooks/use-file-loaded";
 
 interface MarkdownContextProps {
   markdown: string;
@@ -14,10 +15,13 @@ const MarkdownContext = createContext<MarkdownContextProps | undefined>(
 
 const MarkdownProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { setText } = useText();
+  const { setFileName } = useFileLoaded();
   const [markdown, setMarkdown] = useState<string>("");
   const loadMarkdown = async (): Promise<boolean> => {
-    const data = await loadFromFile();
-    if (!data) return false;
+    const loadedData = await loadFromFile();
+    if (!loadedData) return false;
+    const { data, fileName } = loadedData;
+    setFileName(fileName);
     setMarkdown(data);
     return true;
   };

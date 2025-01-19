@@ -79,3 +79,23 @@ export const Anchor = forwardRef<
   </a>
 ));
 Anchor.displayName = "Anchor";
+
+export const Blockquote = ({ children }: TagProps) => (
+  <blockquote
+    style={{
+      borderLeft: "4px solid #6C757D",
+      paddingLeft: "1rem",
+      fontStyle: "italic",
+      backgroundColor: "#f5f5f5",
+    }}
+  >
+    {children}
+  </blockquote>
+);
+
+export const UnorderdList = forwardRef<
+  HTMLUListElement,
+  React.OlHTMLAttributes<HTMLUListElement>
+>(({ children }, ref) => <ul className="ml-4 list-disc" ref={ref}>{children}</ul>);
+
+UnorderdList.displayName = "UnorderdList";

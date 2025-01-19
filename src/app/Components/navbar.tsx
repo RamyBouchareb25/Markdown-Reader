@@ -5,9 +5,11 @@ import { Icon as MdiIcon } from "@mdi/react";
 import { mdiThemeLightDark } from "@mdi/js";
 import Link from "next/link";
 import { useMarkdown } from "../hooks/use-markdown";
+import { useFileLoaded } from "../hooks/use-file-loaded";
+import { useEffect } from "react";
 const NavBar = () => {
   const { loadMarkdown } = useMarkdown();
-
+  const { fileName, setFileName } = useFileLoaded();
   const handleLoad = () => {
     loadMarkdown().then((res) => {
       if (!res) {
@@ -15,11 +17,17 @@ const NavBar = () => {
       }
     });
   };
+  useEffect(() => {
+    if (!fileName || fileName === "") {
+      setFileName("Untitled");
+    }
+  }, [fileName, setFileName]);
   return (
     <nav className="flex flex-row justify-between items-center px-2 w-full min-h-[9vh] h-[9vh] shadow-xl">
       <Link href="/">
         <Icon />
       </Link>
+      <h1 className="text-xl font-bold">{fileName}</h1>
       <ul className="flex flex-row gap-2 items-center">
         <li>
           <Button variant="ghost">

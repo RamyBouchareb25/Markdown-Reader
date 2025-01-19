@@ -2,6 +2,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { FileHandle, open as openFile } from "@tauri-apps/plugin-fs";
 import {
   Anchor,
+  Blockquote,
   Code,
   Em,
   Header1,
@@ -10,6 +11,7 @@ import {
   InlineCode,
   Paragraph,
   Strong,
+  UnorderdList,
 } from "./custom-html";
 import { Fragment } from "react";
 
@@ -20,77 +22,18 @@ export const loadFromFile = async () => {
     title: "Select a markdown file",
   });
   if (path === null) return;
+  const fileName = path.split("\\").pop();
   const file = await openFile(path, {
     read: true,
     write: true,
   });
   const data = await readFile(file);
-  console.log(data);
-  return data;
+  if (!fileName) return;
+  return { data, fileName };
 };
-
-// export const transformMarkdownToText = (markdown: string) => {
-//   const lines = markdown.split("\n");
-//   const elements = lines.map((line, index) => {
-//     if (/^# /.test(line)) {
-//       return <Header1 key={index}>{line.replace(/^# /, "")}</Header1>;
-//     } else if (/^## /.test(line)) {
-//       return <Header2 key={index}>{line.replace(/^## /, "")}</Header2>;
-//     } else if (/^### /.test(line)) {
-//       return <Header3 key={index}>{line.replace(/^### /, "")}</Header3>;
-//     } else if (/\*\*(\S(.*?\S)?)\*\*/gim.test(line)) {
-//       return (
-//         <Paragraph key={index}>
-//           {line
-//             .split(/(\*\*(\S(.*?\S)?)\*\*)/gim)
-//             .map((part, i) =>
-//               /\*\*(\S(.*?\S)?)\*\*/gim.test(part) ? (
-//                 <Strong key={i}>{part.replace(/\*\*/g, "")}</Strong>
-//               ) : undefined
-//             )}
-//         </Paragraph>
-//       );
-//     } else if (/`([^`]+)`/gim.test(line)) {
-//       return (
-//         <Fragment key={index}>
-//           {line
-//             .split(/(`[^`]+`)/g)
-//             .map((part, i) =>
-//               /`[^`]+`/g.test(part) ? (
-//                 <Code
-//                   key={i}
-//                   code={part.replace(/`/g, "").trim()}
-//                   language="sh"
-//                 />
-//               ) : (
-//                 part
-//               )
-//             )}
-//         </Fragment>
-//       );
-//     } else if (/\*(\S(.*?\S)?)\*/gim.test(line)) {
-//       return (
-//         <Paragraph key={index}>
-//           {line
-//             .split(/(\*\S(.*?\S)?\*)/gim)
-//             .map((part, i) =>
-//               /\*\S(.*?\S)?\*/gim.test(part) ? (
-//                 <Em key={i}>{part.replace(/\*/g, "")}</Em>
-//               ) : undefined
-//             )}
-//         </Paragraph>
-//       );
-//     } else if (line.trim() === "") {
-//       return <Paragraph key={index} style={{ height: "1lh" }}></Paragraph>;
-//     } else {
-//       return <Paragraph key={index}>{line}</Paragraph>;
-//     }
-//   });
-
-//   return elements;
-// };
 const parseInlineElements = (text: string) => {
-  const regex = /(\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`|\[(.+?)\]\((.+?)\))/g;
+  const regex =
+    /(\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`|\[(.+?)\]\((.+?)\)|^(>+)\s(.+)|^(\-|\*|\+)\s(.+))/gm;
   const elements: (string | React.JSX.Element)[] = [];
   let lastIndex = 0;
 
@@ -103,16 +46,101 @@ const parseInlineElements = (text: string) => {
 
     // Handle valid markdown matches
     if (match[1]?.startsWith("**") && match[2]) {
-      elements.push(<Strong key={elements.length}>{match[2]}</Strong>);
+      elements.push(
+        <Strong
+          key={elements
+            .map((e) => {
+              if (typeof e !== "string") {
+                return e.type;
+              }
+              return e;
+            })
+            .join("")}
+        >
+          {match[2]}
+        </Strong>
+      );
     } else if (match[1]?.startsWith("*") && match[3]) {
-      elements.push(<Em key={elements.length}>{match[3]}</Em>);
+      elements.push(
+        <Em
+          key={elements
+            .map((e) => {
+              if (typeof e !== "string") {
+                return e.type;
+              }
+              return e;
+            })
+            .join("")}
+        >
+          {match[3]}
+        </Em>
+      );
     } else if (match[1]?.startsWith("`") && match[4]) {
-      elements.push(<InlineCode key={elements.length}>{match[4]}</InlineCode>);
+      elements.push(
+        <InlineCode
+          key={elements
+            .map((e) => {
+              if (typeof e !== "string") {
+                return e.type;
+              }
+              return e;
+            })
+            .join("")}
+        >
+          {match[4]}
+        </InlineCode>
+      );
     } else if (match[1]?.startsWith("[") && match[5] && match[6]) {
       elements.push(
-        <Anchor key={elements.length} href={match[6]}>
+        <Anchor
+          key={elements
+            .map((e) => {
+              if (typeof e !== "string") {
+                return e.type;
+              }
+              return e;
+            })
+            .join("")}
+          href={match[6]}
+        >
           {match[5]}
         </Anchor>
+      );
+    } else if (match[7]?.startsWith(">") && match[8]) {
+      const nestedContent = match[8];
+      const nestedElements = parseInlineElements(nestedContent);
+      let nestedBlockquote = nestedElements;
+      for (let i = 0; i < match[7].length; i++) {
+        nestedBlockquote = [
+          <Blockquote
+            key={elements
+              .map((e) => {
+                if (typeof e !== "string") {
+                  return e.type;
+                }
+                return e;
+              })
+              .join("")}
+          >
+            {nestedBlockquote}
+          </Blockquote>,
+        ];
+      }
+      elements.push(nestedBlockquote[0]);
+    } else if (match[9] && match[10]) {
+      elements.push(
+        <li
+          key={elements
+            .map((e) => {
+              if (typeof e !== "string") {
+                return e.type;
+              }
+              return e;
+            })
+            .join("")}
+        >
+          {match[10]}
+        </li>
       );
     }
 
@@ -129,41 +157,172 @@ const parseInlineElements = (text: string) => {
 
 export const transformMarkdownToText = (markdown: string) => {
   const lines = markdown.split("\n");
-  console.log(lines);
-  const elements = lines.map((line, index) => {
+  const elements: (string | React.JSX.Element)[] = [];
+  let currentListItems: React.JSX.Element[] = [];
+
+  lines.forEach((line, index) => {
     const parsedElements = parseInlineElements(line);
     const containsCode =
       Array.isArray(parsedElements) &&
       parsedElements.some(
-        (element) => (element as React.JSX.Element)?.type === Code
+        (element) =>
+          (element as React.JSX.Element)?.type === Code ||
+          (element as React.JSX.Element)?.type === Blockquote
       );
 
     if (/^# /.test(line)) {
-      return (
+      if (currentListItems.length > 0) {
+        elements.push(
+          <UnorderdList
+            key={elements
+              .map((e) => {
+                if (typeof e !== "string") {
+                  return e.type;
+                }
+                return e;
+              })
+              .join("")}
+          >
+            {currentListItems}
+          </UnorderdList>
+        );
+        currentListItems = [];
+      }
+      elements.push(
         <Header1 key={index}>
           {parseInlineElements(line.replace(/^# /, ""))}
         </Header1>
       );
     } else if (/^## /.test(line)) {
-      return (
+      if (currentListItems.length > 0) {
+        elements.push(
+          <UnorderdList
+            key={elements
+              .map((e) => {
+                if (typeof e !== "string") {
+                  return e.type;
+                }
+                return e;
+              })
+              .join("")}
+          >
+            {currentListItems}
+          </UnorderdList>
+        );
+        currentListItems = [];
+      }
+      elements.push(
         <Header2 key={index}>
           {parseInlineElements(line.replace(/^## /, ""))}
         </Header2>
       );
     } else if (/^### /.test(line)) {
-      return (
+      if (currentListItems.length > 0) {
+        elements.push(
+          <UnorderdList
+            key={elements
+              .map((e) => {
+                if (typeof e !== "string") {
+                  return e.type;
+                }
+                return e;
+              })
+              .join("")}
+          >
+            {currentListItems}
+          </UnorderdList>
+        );
+        currentListItems = [];
+      }
+      elements.push(
         <Header3 key={index}>
           {parseInlineElements(line.replace(/^### /, ""))}
         </Header3>
       );
     } else if (line.trim() === "") {
-      return <Paragraph key={index} style={{ height: "1lh" }}></Paragraph>;
+      if (currentListItems.length > 0) {
+        elements.push(
+          <UnorderdList
+            key={elements
+              .map((e) => {
+                if (typeof e !== "string") {
+                  return e.type;
+                }
+                return e;
+              })
+              .join("")}
+          >
+            {currentListItems}
+          </UnorderdList>
+        );
+        currentListItems = [];
+      }
+      elements.push(
+        <Paragraph key={index} style={{ height: "1lh" }}></Paragraph>
+      );
     } else if (containsCode) {
-      return <Fragment key={index}>{parsedElements}</Fragment>;
+      if (currentListItems.length > 0) {
+        elements.push(
+          <UnorderdList
+            key={elements
+              .map((e) => {
+                if (typeof e !== "string") {
+                  return e.type;
+                }
+                return e;
+              })
+              .join("")}
+          >
+            {currentListItems}
+          </UnorderdList>
+        );
+        currentListItems = [];
+      }
+      elements.push(<Fragment key={index}>{parsedElements}</Fragment>);
+    } else if (/^(\-|\*|\+)\s/.test(line)) {
+      currentListItems.push(
+        <li key={index}>
+          {parseInlineElements(line.replace(/^(\-|\*|\+)\s/, ""))}
+        </li>
+      );
     } else {
-      return <Paragraph key={index}>{parsedElements}</Paragraph>;
+      if (currentListItems.length > 0) {
+        elements.push(
+          <UnorderdList
+            key={elements
+              .map((e) => {
+                if (typeof e !== "string") {
+                  return e.type;
+                }
+                return e;
+              })
+              .join("")}
+          >
+            {currentListItems}
+          </UnorderdList>
+        );
+        currentListItems = [];
+      }
+      elements.push(<Paragraph key={index}>{parsedElements}</Paragraph>);
     }
   });
+
+  if (currentListItems.length > 0) {
+    elements.push(
+      <UnorderdList
+        key={elements
+          .map((e) => {
+            if (typeof e !== "string") {
+              return e.type;
+            }
+            return e;
+          })
+          .join("")}
+      >
+        {currentListItems}
+      </UnorderdList>
+    );
+  }
 
   return elements;
 };
