@@ -1,6 +1,6 @@
 import { ButtonHTMLAttributes, forwardRef, ReactNode } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { github } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { darcula } from "react-syntax-highlighter/dist/esm/styles/hljs";
 interface TagProps extends ButtonHTMLAttributes<HTMLDivElement> {
   children?: ReactNode;
 }
@@ -55,7 +55,7 @@ export const Paragraph = ({ children, style }: TagProps) => (
 export const Strong = ({ children }: TagProps) => <strong>{children}</strong>;
 export const Em = ({ children }: TagProps) => <em>{children}</em>;
 export const Code = ({ code, language }: CodeTagProps) => (
-  <SyntaxHighlighter language={language} style={github}>
+  <SyntaxHighlighter language={language} style={darcula}>
     {code}
   </SyntaxHighlighter>
 );
