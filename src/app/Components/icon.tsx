@@ -8,7 +8,7 @@ const poppins = Poppins({
 });
 const Icon = () => {
   return (
-    <div className="flex flex-row text-black items-center">
+    <div className="flex flex-row text-black dark:text-white items-center">
       <MdiIcon path={mdiFountainPenTip} size={2} />
       <h2 className={`font-extrabold ${poppins.variable} text-lg `}>MarkdownPro</h2>
     </div>

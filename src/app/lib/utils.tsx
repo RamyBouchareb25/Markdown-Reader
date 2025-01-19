@@ -4,7 +4,7 @@ import { FileHandle, open as openFile } from "@tauri-apps/plugin-fs";
 export const saveFile = async (data: string, path: string) => {
   const file = await openFile(path, {
     write: true,
-    create: true,
+    create: false,
   });
   const encoder = new TextEncoder();
   const encodedData = encoder.encode(data);

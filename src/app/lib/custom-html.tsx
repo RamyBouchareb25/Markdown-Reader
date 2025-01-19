@@ -60,9 +60,7 @@ export const Code = ({ code, language }: CodeTagProps) => (
   </SyntaxHighlighter>
 );
 export const InlineCode = ({ children }: TagProps) => (
-  <code style={{ backgroundColor: "#f5f5f5", padding: "0.25rem" }}>
-    {children}
-  </code>
+  <code className="bg-[#f5f5f5] p-[0.25rem] dark:bg-black">{children}</code>
 );
 export const Anchor = forwardRef<
   HTMLAnchorElement,
@@ -81,14 +79,7 @@ export const Anchor = forwardRef<
 Anchor.displayName = "Anchor";
 
 export const Blockquote = ({ children }: TagProps) => (
-  <blockquote
-    style={{
-      borderLeft: "4px solid #6C757D",
-      paddingLeft: "1rem",
-      fontStyle: "italic",
-      backgroundColor: "#f5f5f5",
-    }}
-  >
+  <blockquote className="border-l-[4px] border-l-[#6C757D] pl-4 italic bg-[#f5f5f5] dark:bg-[#0c0c0c] dark:border-l-[#d6d6d6]">
     {children}
   </blockquote>
 );
@@ -96,6 +87,10 @@ export const Blockquote = ({ children }: TagProps) => (
 export const UnorderdList = forwardRef<
   HTMLUListElement,
   React.OlHTMLAttributes<HTMLUListElement>
->(({ children }, ref) => <ul className="ml-4 list-disc" ref={ref}>{children}</ul>);
+>(({ children }, ref) => (
+  <ul className="ml-4 list-disc" ref={ref}>
+    {children}
+  </ul>
+));
 
 UnorderdList.displayName = "UnorderdList";

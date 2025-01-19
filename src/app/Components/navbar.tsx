@@ -1,13 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import Icon from "./icon";
-import { Icon as MdiIcon } from "@mdi/react";
-import { mdiThemeLightDark } from "@mdi/js";
 import Link from "next/link";
 import { useMarkdown } from "../hooks/use-markdown";
 import { useFileLoaded } from "../hooks/use-file-loaded";
 import { useEffect } from "react";
 import { saveFile, saveFileAs } from "../lib/utils";
+import { ThemeSwitcher } from "./theme-switcher";
 const NavBar = () => {
   const { loadMarkdown, markdown } = useMarkdown();
   const { fileName, setFileName, filePath, setFilePath } = useFileLoaded();
@@ -31,16 +30,14 @@ const NavBar = () => {
     }
   }, [fileName, setFileName, setFilePath]);
   return (
-    <nav className="flex flex-row justify-between items-center px-2 w-full min-h-[9vh] h-[9vh] shadow-xl">
+    <nav className="flex relative z-10 flex-row justify-between items-center px-2 w-full min-h-[9vh] h-[9vh] shadow-xl dark:bg-black  dark:shadow-[rgba(230,230,230,0.2)]">
       <Link href="/">
         <Icon />
       </Link>
       <h1 className="text-xl font-bold">{fileName}</h1>
       <ul className="flex flex-row gap-2 items-center">
         <li>
-          <Button variant="ghost">
-            <MdiIcon path={mdiThemeLightDark} size={1} />
-          </Button>
+          <ThemeSwitcher />
         </li>
         <li>
           <Button onClick={handleLoad}>Load From File</Button>

@@ -13,7 +13,7 @@ export default function Home() {
     setMarkdown("");
   };
   return (
-    <div className="h-[91vh] flex flex-col gap-4">
+    <div className="h-[91vh] flex dark:bg-black flex-col gap-4">
       <main className="flex mt-10 h-[80vh] items-center flex-row justify-between gap-4 px-3">
         <EditorPanel />
         <ViewPanel />
