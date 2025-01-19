@@ -1,6 +1,17 @@
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { FileHandle, open as openFile } from "@tauri-apps/plugin-fs";
 
+export const saveFile = async (data: string, path: string) => {
+  const file = await openFile(path, {
+    write: true,
+    create: true,
+  });
+  const encoder = new TextEncoder();
+  const encodedData = encoder.encode(data);
+  await file.write(encodedData);
+  await file.close();
+};
+
 export const saveFileAs = async (data: string) => {
   const filePath = await save({
     defaultPath: "untitled.md",
@@ -32,7 +43,7 @@ export const loadFromFile = async () => {
   });
   const data = await readFile(file);
   if (!fileName) return;
-  return { data, fileName };
+  return { data, fileName, path };
 };
 
 async function readFile(file: FileHandle) {

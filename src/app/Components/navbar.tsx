@@ -7,12 +7,15 @@ import Link from "next/link";
 import { useMarkdown } from "../hooks/use-markdown";
 import { useFileLoaded } from "../hooks/use-file-loaded";
 import { useEffect } from "react";
-import { saveFileAs } from "../lib/utils";
+import { saveFile, saveFileAs } from "../lib/utils";
 const NavBar = () => {
   const { loadMarkdown, markdown } = useMarkdown();
-  const { fileName, setFileName } = useFileLoaded();
+  const { fileName, setFileName, filePath, setFilePath } = useFileLoaded();
   const handleSaveAs = () => {
     saveFileAs(markdown);
+  };
+  const handleSaveFile = () => {
+    saveFile(markdown, filePath);
   };
   const handleLoad = () => {
     loadMarkdown().then((res) => {
@@ -24,8 +27,9 @@ const NavBar = () => {
   useEffect(() => {
     if (!fileName || fileName === "") {
       setFileName("Untitled");
+      setFilePath("");
     }
-  }, [fileName, setFileName]);
+  }, [fileName, setFileName, setFilePath]);
   return (
     <nav className="flex flex-row justify-between items-center px-2 w-full min-h-[9vh] h-[9vh] shadow-xl">
       <Link href="/">
@@ -47,7 +51,9 @@ const NavBar = () => {
           </Button>
         </li>
         <li>
-          <Button disabled={fileName === "Untitled"}>Save</Button>
+          <Button onClick={handleSaveFile} disabled={fileName === "Untitled"}>
+            Save
+          </Button>
         </li>
       </ul>
     </nav>

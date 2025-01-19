@@ -16,13 +16,14 @@ const MarkdownContext = createContext<MarkdownContextProps | undefined>(
 
 const MarkdownProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { setText } = useText();
-  const { setFileName } = useFileLoaded();
+  const { setFileName, setFilePath } = useFileLoaded();
   const [markdown, setMarkdown] = useState<string>("");
   const loadMarkdown = async (): Promise<boolean> => {
     const loadedData = await loadFromFile();
     if (!loadedData) return false;
-    const { data, fileName } = loadedData;
+    const { data, fileName, path } = loadedData;
     setFileName(fileName);
+    setFilePath(path);
     setMarkdown(data);
     return true;
   };
