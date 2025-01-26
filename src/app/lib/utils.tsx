@@ -12,6 +12,15 @@ export const saveFile = async (data: string, path: string) => {
   await file.close();
 };
 
+export const sha256 = async (data: string) => {
+  const encoder = new TextEncoder();
+  const dataBuffer = encoder.encode(data);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", dataBuffer);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+};
+
 export const saveFileAs = async (data: string) => {
   const filePath = await save({
     defaultPath: "untitled.md",
@@ -23,10 +32,12 @@ export const saveFileAs = async (data: string) => {
     write: true,
     create: true,
   });
+  const fileName = filePath.split("\\").pop();
   const encoder = new TextEncoder();
   const encodedData = encoder.encode(data);
   await file.write(encodedData);
   await file.close();
+  return { fileName, filePath };
 };
 
 export const loadFromFile = async () => {

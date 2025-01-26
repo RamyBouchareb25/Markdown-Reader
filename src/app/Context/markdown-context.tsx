@@ -1,5 +1,5 @@
 import React, { createContext, useState, ReactNode, useEffect } from "react";
-import { loadFromFile } from "../lib/utils";
+import { loadFromFile, sha256 } from "../lib/utils";
 import { useText } from "../hooks/use-text";
 import { useFileLoaded } from "../hooks/use-file-loaded";
 import { transformMarkdownToText } from "../lib/markdown-processing";
@@ -16,15 +16,17 @@ const MarkdownContext = createContext<MarkdownContextProps | undefined>(
 
 const MarkdownProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { setText } = useText();
-  const { setFileName, setFilePath } = useFileLoaded();
+  const { setFileName, setFilePath, setInitialTextHash } = useFileLoaded();
   const [markdown, setMarkdown] = useState<string>("");
   const loadMarkdown = async (): Promise<boolean> => {
     const loadedData = await loadFromFile();
     if (!loadedData) return false;
     const { data, fileName, path } = loadedData;
+    const hash = await sha256(data);
     setFileName(fileName);
     setFilePath(path);
     setMarkdown(data);
+    setInitialTextHash(hash);
     return true;
   };
   useEffect(() => {

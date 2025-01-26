@@ -6,6 +6,7 @@ import {
   Header1,
   Header2,
   Header3,
+  Horizontal,
   InlineCode,
   Paragraph,
   Strong,
@@ -13,9 +14,10 @@ import {
 } from "./custom-html";
 import { Fragment } from "react";
 import { v4 as uuidv4 } from "uuid";
+
 const parseInlineElements = (text: string) => {
   const regex =
-    /(\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`|\[(.+?)\]\((.+?)\)|^(>+)\s(.+)|^(\-|\*|\+)\s(.+))/gm;
+    /(\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`|\[(.+?)\]\((.+?)\)|^(>+)\s(.+)|^(\-|\*|\+)\s(.+)|^---$)/gm;
   const elements: (string | React.JSX.Element)[] = [];
   let lastIndex = 0;
 
@@ -51,6 +53,8 @@ const parseInlineElements = (text: string) => {
       elements.push(nestedBlockquote[0]);
     } else if (match[9] && match[10]) {
       elements.push(<li key={uuidv4()}>{match[10]}</li>);
+    } else if (match[0] === "---") {
+      elements.push(<Horizontal key={uuidv4()} />);
     }
 
     lastIndex = regex.lastIndex;
@@ -63,6 +67,7 @@ const parseInlineElements = (text: string) => {
 
   return elements;
 };
+
 export const transformMarkdownToText = (markdown: string) => {
   const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/gm;
   const elements: (string | React.JSX.Element)[] = [];
@@ -82,24 +87,14 @@ export const transformMarkdownToText = (markdown: string) => {
           parsedElements.some(
             (element) =>
               (element as React.JSX.Element)?.type === Code ||
+              (element as React.JSX.Element)?.type === Horizontal ||
               (element as React.JSX.Element)?.type === Blockquote
           );
 
         if (/^# /.test(line)) {
           if (currentListItems.length > 0) {
             elements.push(
-              <UnorderdList
-                key={elements
-                  .map((e) => {
-                    if (typeof e !== "string") {
-                      return e.type;
-                    }
-                    return e;
-                  })
-                  .join("")}
-              >
-                {currentListItems}
-              </UnorderdList>
+              <UnorderdList key={uuidv4()}>{currentListItems}</UnorderdList>
             );
             currentListItems = [];
           }
@@ -111,18 +106,7 @@ export const transformMarkdownToText = (markdown: string) => {
         } else if (/^## /.test(line)) {
           if (currentListItems.length > 0) {
             elements.push(
-              <UnorderdList
-                key={elements
-                  .map((e) => {
-                    if (typeof e !== "string") {
-                      return e.type;
-                    }
-                    return e;
-                  })
-                  .join("")}
-              >
-                {currentListItems}
-              </UnorderdList>
+              <UnorderdList key={uuidv4()}>{currentListItems}</UnorderdList>
             );
             currentListItems = [];
           }
@@ -134,18 +118,7 @@ export const transformMarkdownToText = (markdown: string) => {
         } else if (/^### /.test(line)) {
           if (currentListItems.length > 0) {
             elements.push(
-              <UnorderdList
-                key={elements
-                  .map((e) => {
-                    if (typeof e !== "string") {
-                      return e.type;
-                    }
-                    return e;
-                  })
-                  .join("")}
-              >
-                {currentListItems}
-              </UnorderdList>
+              <UnorderdList key={uuidv4()}>{currentListItems}</UnorderdList>
             );
             currentListItems = [];
           }
@@ -157,18 +130,7 @@ export const transformMarkdownToText = (markdown: string) => {
         } else if (line.trim() === "") {
           if (currentListItems.length > 0) {
             elements.push(
-              <UnorderdList
-                key={elements
-                  .map((e) => {
-                    if (typeof e !== "string") {
-                      return e.type;
-                    }
-                    return e;
-                  })
-                  .join("")}
-              >
-                {currentListItems}
-              </UnorderdList>
+              <UnorderdList key={uuidv4()}>{currentListItems}</UnorderdList>
             );
             currentListItems = [];
           }
@@ -178,18 +140,7 @@ export const transformMarkdownToText = (markdown: string) => {
         } else if (containsCode) {
           if (currentListItems.length > 0) {
             elements.push(
-              <UnorderdList
-                key={elements
-                  .map((e) => {
-                    if (typeof e !== "string") {
-                      return e.type;
-                    }
-                    return e;
-                  })
-                  .join("")}
-              >
-                {currentListItems}
-              </UnorderdList>
+              <UnorderdList key={uuidv4()}>{currentListItems}</UnorderdList>
             );
             currentListItems = [];
           }
@@ -203,18 +154,7 @@ export const transformMarkdownToText = (markdown: string) => {
         } else {
           if (currentListItems.length > 0) {
             elements.push(
-              <UnorderdList
-                key={elements
-                  .map((e) => {
-                    if (typeof e !== "string") {
-                      return e.type;
-                    }
-                    return e;
-                  })
-                  .join("")}
-              >
-                {currentListItems}
-              </UnorderdList>
+              <UnorderdList key={uuidv4()}>{currentListItems}</UnorderdList>
             );
             currentListItems = [];
           }
@@ -243,24 +183,14 @@ export const transformMarkdownToText = (markdown: string) => {
         parsedElements.some(
           (element) =>
             (element as React.JSX.Element)?.type === Code ||
+            (element as React.JSX.Element)?.type === Horizontal ||
             (element as React.JSX.Element)?.type === Blockquote
         );
 
       if (/^# /.test(line)) {
         if (currentListItems.length > 0) {
           elements.push(
-            <UnorderdList
-              key={elements
-                .map((e) => {
-                  if (typeof e !== "string") {
-                    return e.type;
-                  }
-                  return e;
-                })
-                .join("")}
-            >
-              {currentListItems}
-            </UnorderdList>
+            <UnorderdList key={uuidv4()}>{currentListItems}</UnorderdList>
           );
           currentListItems = [];
         }
@@ -272,18 +202,7 @@ export const transformMarkdownToText = (markdown: string) => {
       } else if (/^## /.test(line)) {
         if (currentListItems.length > 0) {
           elements.push(
-            <UnorderdList
-              key={elements
-                .map((e) => {
-                  if (typeof e !== "string") {
-                    return e.type;
-                  }
-                  return e;
-                })
-                .join("")}
-            >
-              {currentListItems}
-            </UnorderdList>
+            <UnorderdList key={uuidv4()}>{currentListItems}</UnorderdList>
           );
           currentListItems = [];
         }
@@ -295,18 +214,7 @@ export const transformMarkdownToText = (markdown: string) => {
       } else if (/^### /.test(line)) {
         if (currentListItems.length > 0) {
           elements.push(
-            <UnorderdList
-              key={elements
-                .map((e) => {
-                  if (typeof e !== "string") {
-                    return e.type;
-                  }
-                  return e;
-                })
-                .join("")}
-            >
-              {currentListItems}
-            </UnorderdList>
+            <UnorderdList key={uuidv4()}>{currentListItems}</UnorderdList>
           );
           currentListItems = [];
         }
@@ -318,18 +226,7 @@ export const transformMarkdownToText = (markdown: string) => {
       } else if (line.trim() === "") {
         if (currentListItems.length > 0) {
           elements.push(
-            <UnorderdList
-              key={elements
-                .map((e) => {
-                  if (typeof e !== "string") {
-                    return e.type;
-                  }
-                  return e;
-                })
-                .join("")}
-            >
-              {currentListItems}
-            </UnorderdList>
+            <UnorderdList key={uuidv4()}>{currentListItems}</UnorderdList>
           );
           currentListItems = [];
         }
@@ -339,18 +236,7 @@ export const transformMarkdownToText = (markdown: string) => {
       } else if (containsCode) {
         if (currentListItems.length > 0) {
           elements.push(
-            <UnorderdList
-              key={elements
-                .map((e) => {
-                  if (typeof e !== "string") {
-                    return e.type;
-                  }
-                  return e;
-                })
-                .join("")}
-            >
-              {currentListItems}
-            </UnorderdList>
+            <UnorderdList key={uuidv4()}>{currentListItems}</UnorderdList>
           );
           currentListItems = [];
         }
@@ -364,18 +250,7 @@ export const transformMarkdownToText = (markdown: string) => {
       } else {
         if (currentListItems.length > 0) {
           elements.push(
-            <UnorderdList
-              key={elements
-                .map((e) => {
-                  if (typeof e !== "string") {
-                    return e.type;
-                  }
-                  return e;
-                })
-                .join("")}
-            >
-              {currentListItems}
-            </UnorderdList>
+            <UnorderdList key={uuidv4()}>{currentListItems}</UnorderdList>
           );
           currentListItems = [];
         }

@@ -94,3 +94,8 @@ export const UnorderdList = forwardRef<
 ));
 
 UnorderdList.displayName = "UnorderdList";
+
+export const Horizontal = forwardRef<HTMLHRElement, TagProps>((props, ref) => (
+  <hr ref={ref} className="border-[#e5e7eb] border-2 my-4" {...props} />
+));
+Horizontal.displayName = "Horizontal";

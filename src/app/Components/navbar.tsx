@@ -5,16 +5,36 @@ import Link from "next/link";
 import { useMarkdown } from "../hooks/use-markdown";
 import { useFileLoaded } from "../hooks/use-file-loaded";
 import { useEffect } from "react";
-import { saveFile, saveFileAs } from "../lib/utils";
+import { saveFile, saveFileAs, sha256 } from "../lib/utils";
 import { ThemeSwitcher } from "./theme-switcher";
 const NavBar = () => {
   const { loadMarkdown, markdown } = useMarkdown();
-  const { fileName, setFileName, filePath, setFilePath } = useFileLoaded();
+  const {
+    setInitialTextHash,
+    fileName,
+    setFileName,
+    filePath,
+    setFilePath,
+    didFileChange,
+    setDidFileChange,
+  } = useFileLoaded();
   const handleSaveAs = () => {
-    saveFileAs(markdown);
+    saveFileAs(markdown).then((data) => {
+      sha256(markdown).then((hash) => {
+        const { fileName, filePath } = data!;
+        setDidFileChange(false);
+        setInitialTextHash(hash);
+        setFileName(fileName!);
+        setFilePath(filePath!);
+      });
+    });
   };
   const handleSaveFile = () => {
     saveFile(markdown, filePath);
+    sha256(markdown).then((hash) => {
+      setDidFileChange(false);
+      setInitialTextHash(hash);
+    });
   };
   const handleLoad = () => {
     loadMarkdown().then((res) => {
@@ -34,7 +54,9 @@ const NavBar = () => {
       <Link href="/">
         <Icon />
       </Link>
-      <h1 className="text-xl font-bold">{fileName}</h1>
+      <h1 className={`text-xl ${didFileChange && "font-bold"}`}>
+        {fileName} {didFileChange && "*"}
+      </h1>
       <ul className="flex flex-row gap-2 items-center">
         <li>
           <ThemeSwitcher />
